@@ -1,0 +1,65 @@
+---
+# - name: Configure node-1
+#   hosts: node-1
+#   become: true
+#   tasks:
+#     - name: Uninstall old versions
+#       apt:
+
+
+- name: Configure node-2
+  hosts: node-2
+  become: true
+  tasks:
+  - name: Uninstall old versions
+    apt:
+      name:
+        - docker
+        - docker-engine
+        - docker.io
+        - containerd
+        - runc
+      state: absent
+  - name: Install required system packages
+    apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+        - python3-pip
+      state: present
+      update_cache: yes
+  - name: Add Docker GPG apt Key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+  - name: Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu bionic stable
+      state: present
+  - name: Update apt and install docker
+    apt:
+      name:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+      state: present
+      update_cache: yes
+  - name: Install Docker Module for Python
+    pip:
+      name: docker
+  - name: Deploy Gitlab docker container
+    docker_container:
+      name: gitlab
+      image: gitlab/gitlab-ce
+      state: started
+      volumes:
+        - /data
+        - /config
+        - /logs
+      ports:
+        - "8080:80"
+        - "8443:443"
+        - "8822:22"
