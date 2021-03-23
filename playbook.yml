@@ -1,11 +1,51 @@
 ---
-# - name: Configure node-1
-#   hosts: node-1
-#   become: true
-#   tasks:
-#     - name: Uninstall old versions
-#       apt:
+- name: Configure node-1
+  hosts: node-1
+  become: true
+  tasks:
+  - name: Install web server
+    apt:
+      name: nginx
+  - name: Copy index.html
+    copy:
+      src: ./index.html
+      dest: /var/www/html/index.html
+  - name: mkdir backup directory
+    file:
+      path: /backup
+      state: directory
+      mode: '0777'
+  - name: Change directory ownership, group and permissions
+    file:
+      path: /var/www/html
+      owner: www-data
+      group: www-data
+      mode: '0664'
 
+
+  - name: Add Gitlab GPG apt Key
+    apt_key:
+      url: https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey
+      state: present
+  - name: Add Gitlab Repository
+    apt_repository:
+      repo: deb https://packages.gitlab.com/runner/gitlab-runner/ubuntu/ bionic main
+      state: present
+  - name: Update apt update cache and install gitlab-runner
+    apt:
+      name: gitlab-runner
+      state: present
+      update_cache: yes
+  - name: Add node-2 to host file
+    lineinfile:
+      path: /etc/hosts
+# Need use variable
+      line: 192.168.10.24 gitlab
+
+  - name: Adding user gitlab-runner
+    user:
+      name: gitlab-runner
+      groups: www-data
 
 - name: Configure node-2
   hosts: node-2
@@ -55,11 +95,12 @@
       name: gitlab
       image: gitlab/gitlab-ce
       state: started
+      hostname: gitlab
       volumes:
         - /data
         - /config
         - /logs
       ports:
-        - "8080:80"
-        - "8443:443"
+        - "80:80"
+        - "443:443"
         - "8822:22"

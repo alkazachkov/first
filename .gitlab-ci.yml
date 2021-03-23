@@ -1,0 +1,9 @@
+deploy1:
+  stage: deploy
+  script:
+    - echo "Backup index.html"
+    - tar -czvf /backup/archive.tar.gz --directory=/var/www/html/ index.html
+    - echo "Deploy"
+    - cp index.html /var/www/html/
+  only:
+    - master
