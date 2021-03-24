@@ -19,8 +19,9 @@
     file:
       path: /var/www/html
       owner: www-data
-      group: www-data
-      mode: '0664'
+      group: gitlab-runner
+      recurse: yes
+      mode: '0775'
 
 
   - name: Add Gitlab GPG apt Key
