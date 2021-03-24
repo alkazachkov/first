@@ -1,9 +1,9 @@
 import gitlab
 
-gl = gitlab.Gitlab('http://127.0.0.1:8080', private_token='RnqybwHh3svn3p_ic28_')
+gl = gitlab.Gitlab('http://127.0.0.1:8080', private_token='My_token')
 
 user = gl.users.create({'email': 'ivanov@mycompany.com',
-                        'password': 'scur3s3cr3T',
+                        'password': 'super_pass',
                         'username': 'ivanov',
                         'name': 'Ivan Ivanov'})
 
